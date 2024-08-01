@@ -6,7 +6,7 @@
 ## ✨ 特性
 
 - 🌈 完整案例展示。
-- 📦 使用React组件进行页面的开发。
+- 📦 使用 React 组件进行页面的开发。
 - 🌍 中英文两种语言支持。
 
 ## 介绍文档
@@ -21,3 +21,5 @@ $ cd chrome-extension-react-demo
 $ npm install
 $ npm start
 ```
+
+> npx tailwindcss -i ./src/input.css -o ./extension/output.css --watch
