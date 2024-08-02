@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-
+import FormLabel from "./FormLabel";
 const MultiSelect = ({ options, label, onSelectChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
@@ -32,7 +32,7 @@ const MultiSelect = ({ options, label, onSelectChange }) => {
   const updateSelectedTags = (tags) => {
     setSelectedTags(tags);
     onSelectChange && onSelectChange(tags);
-  }
+  };
 
   const selectOption = (value) => {
     if (!selectedTags.includes(value)) {
@@ -46,7 +46,7 @@ const MultiSelect = ({ options, label, onSelectChange }) => {
     if (inputValue.trim() !== "") {
       selectOption(inputValue.trim());
     }
-  }
+  };
 
   const removeTag = (tag) => {
     updateSelectedTags(selectedTags.filter((t) => t !== tag));
@@ -61,53 +61,59 @@ const MultiSelect = ({ options, label, onSelectChange }) => {
   const showDropdown = isOpen && filteredOptions.length > 0;
 
   return (
-    <div className="relative" ref={containerRef}>
-      <div className="flex items-center gap-2 p-1 border border-transparent rounded focus-within:border-gray-300">
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-        {selectedTags.map((tag, index) => (
-          <span
-            key={index}
-            className="flex items-center gap-1 bg-blue-100 px-2 py-1 rounded"
-          >
-            {tag}
-            <button
-              onClick={() => removeTag(tag)}
-              className="text-blue-500 hover:text-blue-700"
-            >
-              x
-            </button>
-          </span>
-        ))}
-        <input
-          type="text"
-          value={inputValue}
-          onChange={handleInputChange}
-          onKeyDown={handleInputKeyDown}
-          onClick={toggleDropdown}
-          onBlur={handleBlur}
-          className="flex-1 p-1 bg-transparent outline-none"
-          placeholder={
-            selectedTags.length === 0
-              ? "Type or press 'Space/Enter' to add..."
-              : ""
-          }
-        />
+    <div className="relative my-2" ref={containerRef}>
+      <div className="flex items-start justify-start">
+        <FormLabel label={label}></FormLabel>
+        <div className="flex-grow">
+          <div className="flex w-full p-1 border-gray-300 border rounded-md">
+            {selectedTags.map((tag, index) => (
+              <span
+                key={index}
+                className="flex items-center gap-1 ml-1 bg-blue-100 px-2 py-1 rounded-full"
+              >
+                {tag}
+                <button
+                  onClick={() => removeTag(tag)}
+                  className="text-blue-500 hover:text-blue-700"
+                >
+                  x
+                </button>
+              </span>
+            ))}
+            <input
+              type="text"
+              value={inputValue}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyDown}
+              onClick={toggleDropdown}
+              onBlur={handleBlur}
+              className="flex-grow py-1 px-2 bg-transparent outline-none"
+              placeholder={
+                selectedTags.length === 0
+                  ? "Type or press 'Space/Enter' to add..."
+                  : ""
+              }
+            />
+          </div>
+          <div className="relative w-full">
+            {showDropdown && (
+              <ul
+                className={`absolute w-full z-10 bg-white my-2 border border-gray-300 max-h-25 rounded overflow-y-scroll  hide-scrollbar`}
+              >
+                {filteredOptions.map((option, index) => (
+                  <li
+                    key={index}
+                    onClick={() => selectOption(option)}
+                    className="p-2 hover:bg-gray-100 cursor-pointer"
+                  >
+                    {option}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
       </div>
-      {showDropdown && (
-        <ul
-          className={`absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 overflow-hidden scrollbar-hide`}
-        >
-          {filteredOptions.map((option, index) => (
-            <li
-              key={index}
-              onClick={() => selectOption(option)}
-              className="p-2 hover:bg-gray-100 cursor-pointer"
-            >
-              {option}
-            </li>
-          ))}
-        </ul>
-      )}
     </div>
   );
 };

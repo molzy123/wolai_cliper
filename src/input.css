@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 隐藏所有元素的滚动条 */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* 对于 Webkit 浏览器 */
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none; /* IE 和 Edge */
+  scrollbar-width: none; /* Firefox */
+}

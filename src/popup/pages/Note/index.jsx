@@ -10,6 +10,8 @@ import CheckBox from "../../components/CheckBox";
 import { useEffect } from "react";
 import { ColumnType } from "../../../util/DataUtil";
 
+import { wolai_fetch } from "../../../http/fetch";
+
 const Note = () => {
   const settings = useRef(null);
   const [columns, setColumns] = useState([]);
@@ -43,18 +45,36 @@ const Note = () => {
     initSettings();
   }, []);
 
+  const submit = () => {
+    var data = {
+      rows: [formData],
+    };
+    var url = `https://openapi.wolai.com/v1/databases/${settings.current.curDataBase}/rows`;
+    wolai_fetch(
+      url,
+      "POST",
+      data,
+      (result) => {
+        window.close();
+      },
+      settings.current.appToken
+    );
+  };
+
   return (
     <div className={"w-full"}>
       {/* 当settings不为空时才显示 */}
       {settings ? (
-        <>
+        <div className="mr-2">
+          <div className="flex items-center justify-center my-2">
+            <span className="text-2xl"> Add New Note</span>
+          </div>
           {columns.map((column) => {
             if (column.type === ColumnType.PRIMARY) {
               return (
                 <Textarea
                   key={column.columnName}
                   label={column.columnName}
-                  value=""
                   onChange={(value) => {
                     setFormData({ ...formData, [column.columnName]: value });
                   }}
@@ -96,17 +116,17 @@ const Note = () => {
               );
             }
           })}
-          <div>
-            <button
-              className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none"
-              onClick={() => {
-                console.log(formData);
-              }}
-            >
-              添加
-            </button>
+          <div className=" flex items-center justify-center">
+            <div className="mt-3">
+              <button
+                className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none"
+                onClick={submit}
+              >
+                添加
+              </button>
+            </div>
           </div>
-        </>
+        </div>
       ) : (
         <div className=" text-center">
           <h1>请先设置appId、appSecret、dataBase</h1>

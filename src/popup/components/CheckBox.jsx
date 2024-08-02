@@ -1,15 +1,20 @@
-import React from 'react';
+import React from "react";
+import FormLabel from "./FormLabel";
 
 const CheckBox = ({ label, checked, onChange }) => {
+  const handleInputChange = (event) => {
+    onChange(event.target.checked);
+  };
+
   return (
-    <div className="flex items-center space-x-2">
+    <div className="flex items-start justify-start">
+      <FormLabel label={label}></FormLabel>
       <input
         type="checkbox"
         checked={checked}
-        onChange={onChange}
+        onChange={handleInputChange}
         className="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
       />
-      <label className="text-sm font-medium text-gray-700">{label}</label>
     </div>
   );
 };

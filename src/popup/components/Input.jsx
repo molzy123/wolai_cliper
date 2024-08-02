@@ -1,14 +1,13 @@
-import React from 'react';
-
+import React from "react";
+import FormLabel from "./FormLabel";
 const Input = ({ label, value, onChange, placeholder, type = "text" }) => {
-
   const handleInputChange = (event) => {
     onChange(event.target.value);
   };
 
   return (
-    <div className="flex items-center">
-      <label className="block mx-2 flex-shrink-0 font-medium text-gray-700">{label}</label>
+    <div className="flex items-start justify-start">
+      <FormLabel label={label}></FormLabel>
       <input
         type={type}
         value={value}
