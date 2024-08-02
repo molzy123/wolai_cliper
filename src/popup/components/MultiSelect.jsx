@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 
-const MultiSelect = ({ options, maxHeight }) => {
+const MultiSelect = ({ options, label, onSelectChange }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedTags, setSelectedTags] = useState([]);
@@ -29,16 +29,27 @@ const MultiSelect = ({ options, maxHeight }) => {
     }
   };
 
+  const updateSelectedTags = (tags) => {
+    setSelectedTags(tags);
+    onSelectChange && onSelectChange(tags);
+  }
+
   const selectOption = (value) => {
     if (!selectedTags.includes(value)) {
-      setSelectedTags([...selectedTags, value]);
+      updateSelectedTags([...selectedTags, value]);
     }
     setInputValue("");
     setIsOpen(false);
   };
 
+  const handleBlur = () => {
+    if (inputValue.trim() !== "") {
+      selectOption(inputValue.trim());
+    }
+  }
+
   const removeTag = (tag) => {
-    setSelectedTags(selectedTags.filter((t) => t !== tag));
+    updateSelectedTags(selectedTags.filter((t) => t !== tag));
   };
 
   // 选项过滤，并判断是否显示下拉菜单
@@ -51,7 +62,8 @@ const MultiSelect = ({ options, maxHeight }) => {
 
   return (
     <div className="relative" ref={containerRef}>
-      <div className="flex flex-wrap gap-1 p-1 border border-transparent rounded focus-within:border-gray-300">
+      <div className="flex items-center gap-2 p-1 border border-transparent rounded focus-within:border-gray-300">
+      <label className="text-sm font-medium text-gray-700">{label}</label>
         {selectedTags.map((tag, index) => (
           <span
             key={index}
@@ -72,6 +84,7 @@ const MultiSelect = ({ options, maxHeight }) => {
           onChange={handleInputChange}
           onKeyDown={handleInputKeyDown}
           onClick={toggleDropdown}
+          onBlur={handleBlur}
           className="flex-1 p-1 bg-transparent outline-none"
           placeholder={
             selectedTags.length === 0
@@ -82,7 +95,7 @@ const MultiSelect = ({ options, maxHeight }) => {
       </div>
       {showDropdown && (
         <ul
-          className={`absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 overflow-hidden max-h-${maxHeight} scrollbar-hide`}
+          className={`absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 overflow-hidden scrollbar-hide`}
         >
           {filteredOptions.map((option, index) => (
             <li
