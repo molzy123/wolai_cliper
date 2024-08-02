@@ -1,8 +1,8 @@
 /*global chrome*/
 import { useState, useEffect } from "react";
-import AddLogModal from "./components/AddLogModal";
-import "./antd-diy.css";
 import "./content.module.less";
+import Modal from "./components/Modal";
+import Note from "../popup/pages/Note";
 
 const Content = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -33,10 +33,6 @@ const Content = () => {
     setIsModalVisible(false);
   };
 
-  const onInputChange = (value) => {
-    setAddLogModalValue(value);
-  };
-
   useEffect(() => {
     // 监听background页面发来的消息
     chrome.runtime.onMessage.addListener((request) => {
@@ -57,12 +53,9 @@ const Content = () => {
   return (
     <div className="CRX-antd-diy">
       {isModalVisible && (
-        <AddLogModal
-          value={addLogModalValue}
-          onChange={onInputChange}
-          onSave={onSave}
-          onCancel={closeAddLogModal}
-        />
+        <Modal onClose={closeAddLogModal}>
+          <Note></Note>
+        </Modal>
       )}
     </div>
   );

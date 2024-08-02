@@ -21,13 +21,13 @@
     {
       "matches": ["<all_urls>"],
       "js": ["static/js/content.js"],
-      "css": ["static/css/content.css"],
+      "css": ["output.css"],
       "run_at": "document_end"
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["images/*.png"],
+      "resources": ["images/*.png", "*.css"],
       "matches": ["<all_urls>"]
     }
   ],
