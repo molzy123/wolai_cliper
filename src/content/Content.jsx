@@ -7,60 +7,45 @@ import ToastManager from "../popup/ToastManager";
 import { EventService } from "../EventService";
 
 const Content = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [addLogModalValue, setAddLogModalValue] = useState("");
-
-  // 点击保存按钮的回调
-  const onSave = () => {
-    if (!addLogModalValue) {
-      alert("请先输入内容");
-      return;
-    }
-    // 在content_scripts中只能使用部分API，所以将输入的内容交给background页面处理
-    chrome.runtime.sendMessage(chrome.runtime.id, {
-      todo: "saveLog",
-      data: addLogModalValue,
-    });
-    setIsModalVisible(false);
-  };
+  const [showNoteModal, setShowNoteModal] = useState(false);
+  const [selectedText, setSelectedText] = useState("");
 
   // 打开添加日志弹窗
   const showAddLogModal = (value) => {
-    setAddLogModalValue(value);
-    setIsModalVisible(true);
-  };
-
-  // 关闭添加日志弹窗
-  const closeAddLogModal = () => {
-    setIsModalVisible(false);
+    setSelectedText(value);
+    setShowNoteModal(true);
   };
 
   useEffect(() => {
     // 监听background页面发来的消息
     chrome.runtime.onMessage.addListener((request) => {
-      console.log(">>>>>receive message from background", request);
       switch (request.todo) {
-        case "addLog":
+        case "add_note":
+          console.log("AddNote>>>>>>", request);
           showAddLogModal(request.data);
           break;
-        case "closeModal":
-          closeAddLogModal();
-          break;
+        case "showToast":
+          console.log("ShowTOast>>>>>>", request);
+          EventService.dispatchEvent(
+            "showToast",
+            request.message,
+            request.color
+          );
         default:
           break;
       }
     });
 
     EventService.registerEvent("closeModal", () => {
-      closeAddLogModal();
+      setShowNoteModal(false);
     });
   }, []);
 
   return (
     <div className="CRX-antd-diy">
-      {isModalVisible && (
-        <Modal onClose={closeAddLogModal}>
-          <Note></Note>
+      {showNoteModal && (
+        <Modal onClose={() => setShowNoteModal(false)}>
+          <Note selectInfo={selectedText}></Note>
         </Modal>
       )}
       <ToastManager></ToastManager>

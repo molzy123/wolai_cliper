@@ -16,7 +16,7 @@ const Popup = () => {
           <Route exact path="/login" element={<Login />} />
           {/* <Route exact path="/" element={<Login />} /> */}
           <Route path="*" element={<Navigate to="/login" />} />
-          <Route exact path="/" element={<Settings />} />
+          <Route exact path="/" element={<Note />} />
         </Routes>
       </HashRouter>
       <ToastManager></ToastManager>

@@ -46,5 +46,9 @@
       "description": "quick add note"
     }
   },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "default_locale": "zh_CN"
 }

@@ -2,7 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import Input from "../popup/components/Input";
 import { wolai_fetch } from "../http/fetch";
-import DataUtil from "../util/DataUtil";
 import { EventService } from "../EventService";
 const Settings = () => {
   const [appId, setAppId] = useState("");
@@ -11,24 +10,7 @@ const Settings = () => {
   const appToken = useRef(null);
 
   const updateDataBaseInfo = function () {
-    wolai_fetch(
-      `https://openapi.wolai.com/v1/databases/${dataBase}`,
-      "GET",
-      undefined,
-      function (result) {
-        if (result.error_code != undefined) {
-          alert(result.message);
-          return;
-        }
-        const columnInfo = DataUtil.extractColumnInfo(result);
-        var dataBaseInfo = {};
-        dataBaseInfo[dataBase] = columnInfo;
-        chrome.storage.sync.set({ dataBaseInfo: dataBaseInfo });
-        chrome.storage.sync.set({ curDataBase: dataBase });
-        EventService.dispatchEvent("showToast", "Refresh Success!");
-      },
-      appToken.current
-    );
+    chrome.runtime.sendMessage({ todo: "updateDataBase" });
   };
 
   const onConfirm = () => {
@@ -116,6 +98,7 @@ const Settings = () => {
             Refresh
           </button>
         </div>
+        {appToken.current && <div>Token : {appToken.current}</div>}
       </div>
     </div>
   );

@@ -13,11 +13,10 @@ import { ColumnType } from "../../../util/DataUtil";
 import { wolai_fetch } from "../../../http/fetch";
 import { EventService } from "../../../EventService";
 
-const Note = () => {
+const Note = ({ selectInfo = "" }) => {
   const settings = useRef(null);
   const [columns, setColumns] = useState([]);
-  const [formData, setFormData] = useState({});
-
+  const [formData, setFormData] = useState({ 标题: selectInfo });
   const initSettings = () => {
     chrome.storage.sync.get(
       ["appId", "appSecret", "curDataBase", "appToken", "dataBaseInfo"],
@@ -41,7 +40,6 @@ const Note = () => {
           appToken: result.appToken,
           dataBaseStructure: result.dataBaseInfo[result.curDataBase],
         };
-
         setColumns(settings.current.dataBaseStructure.reverse());
       }
     );
@@ -57,7 +55,6 @@ const Note = () => {
     };
     var url = `https://openapi.wolai.com/v1/databases/${settings.current.curDataBase}/rows`;
 
-    console.log(data);
     wolai_fetch(
       url,
       "POST",
@@ -65,6 +62,11 @@ const Note = () => {
       (result) => {
         EventService.dispatchEvent("showToast", "Submit Success!");
         EventService.dispatchEvent("closeModal");
+        chrome.runtime.sendMessage({
+          todo: "updateDataBase",
+          dataBase: settings.current.curDataBase,
+          token: settings.current.appToken,
+        });
       },
       settings.current.appToken
     );
@@ -87,6 +89,7 @@ const Note = () => {
                 <Textarea
                   key={column.columnName}
                   label={column.columnName}
+                  value={formData[column.columnName]}
                   onChange={(value) => {
                     setFormData({ ...formData, [column.columnName]: value });
                   }}

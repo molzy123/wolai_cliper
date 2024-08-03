@@ -59,14 +59,6 @@ const TagDropdown = ({ options, onSelectChange, isSingle }) => {
     if (value === undefined) return;
     value = value.trim();
     if (value === "") return;
-    if (options.indexOf(value) === -1) {
-      EventService.dispatchEvent(
-        "showToast",
-        "This option is not available.",
-        "orange"
-      );
-      return;
-    }
     if (isSingle) {
       updateSelectedTags([value]);
     } else if (!selectedTags.includes(value)) {
@@ -124,7 +116,7 @@ const TagDropdown = ({ options, onSelectChange, isSingle }) => {
       <div className="relative w-full">
         {showDropdown && (
           <ul
-            className={`absolute w-full z-10 bg-white border border-gray-300 shadow-lg max-h-25 rounded overflow-y-scroll  hide-scrollbar`}
+            className={`absolute w-full z-10 bg-white border border-gray-300 shadow-lg max-h-24 rounded overflow-y-scroll  hide-scrollbar`}
           >
             {filteredOptions.map((option, index) => (
               <li

@@ -16,6 +16,7 @@ const ToastManager = () => {
     setToasts(toasts.filter((toast) => toast.id !== id));
   };
 
+  console.log("ToastManager");
   useEffect(() => {
     EventService.registerEvent("showToast", (message, color = "green") => {
       addToast(message, color);

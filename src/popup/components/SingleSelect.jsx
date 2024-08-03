@@ -6,6 +6,8 @@ const SingleSelect = ({ options, label, onSelectChange }) => {
     onSelectChange(tags[0]);
   };
 
+  console.log(options);
+
   return (
     <div className="relative">
       <div className="flex items-start justify-start">
