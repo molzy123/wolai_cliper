@@ -1,13 +1,13 @@
 {
   "manifest_version": 3,
-  "name": "__MSG_appName__",
+  "name": "wolai cliper",
   "version": "1.0.0",
-  "description": "__MSG_appDescription__",
+  "description": "wolai quick add note",
   "icons": {
-    "16": "images/icon.png",
-    "32": "images/icon.png",
-    "48": "images/icon.png",
-    "128": "images/icon.png"
+    "16": "images/icon16.png",
+    "32": "images/icon48.png",
+    "48": "images/icon48.png",
+    "128": "images/icon128.png"
   },
   "permissions": [
     "contextMenus",
@@ -38,18 +38,13 @@
       "matches": ["<all_urls>"]
     }
   ],
-  "options_ui": {
-    "page": "options.html",
-    "open_in_tab": true
-  },
   "commands": {
     "open_popup": {
       "suggested_key": {
         "default": "Alt+N"
       },
-      "description": "Opens the popup window"
+      "description": "quick add note"
     }
   },
-  "default_locale": "zh_CN",
-  "homepage_url": "https://juejin.cn/post/7134996479873122312"
+  "default_locale": "zh_CN"
 }

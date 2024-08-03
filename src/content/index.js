@@ -1,5 +1,5 @@
 /*global chrome*/
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import Content from "./Content";
 
 // 将content页面添加到body
@@ -19,4 +19,6 @@ shadowRoot.appendChild(styleLink);
 // 再添加一个节点用于渲染React
 const reactRoot = document.createElement("div");
 shadowRoot.appendChild(reactRoot);
-ReactDOM.render(<Content />, reactRoot);
+
+const root = createRoot(reactRoot);
+root.render(<Content />);
