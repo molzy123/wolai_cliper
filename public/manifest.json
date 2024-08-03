@@ -9,7 +9,14 @@
     "48": "images/icon.png",
     "128": "images/icon.png"
   },
-  "permissions": ["contextMenus", "storage", "tabs", "tts", "notifications"],
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "tabs",
+    "tts",
+    "notifications",
+    "commands"
+  ],
   "action": {
     "default_popup": "popup.html"
   },
@@ -34,6 +41,14 @@
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
+  },
+  "commands": {
+    "open_popup": {
+      "suggested_key": {
+        "default": "Alt+N"
+      },
+      "description": "Opens the popup window"
+    }
   },
   "default_locale": "zh_CN",
   "homepage_url": "https://juejin.cn/post/7134996479873122312"

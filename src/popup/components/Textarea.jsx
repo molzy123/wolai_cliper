@@ -13,7 +13,7 @@ const Textarea = ({ label, value, onChange, placeholder, rows = 3 }) => {
         onChange={handleChange}
         placeholder={placeholder}
         rows={rows}
-        className="resize-none flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 scrollbar-thin scrollbar-thumb-gray-400"
+        className="resize-none bg-white flex-grow px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 scrollbar-thin scrollbar-thumb-gray-400"
         style={{ overflowY: "auto" }}
       />
     </div>

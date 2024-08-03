@@ -1,14 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
+import CircleButton from "./CircleButton";
 
 function Modal({ onClose, children }) {
   return (
-    <div className="fixed top-0 left-0 z-[999] w-full overflow-x-hidden overflow-y-auto h-full flex justify-center items-center">
-      <div className="max-auto flex flex-col w-[500px] h-[40%] overflow-y-auto  bg-gray-100 border-2 border-gray-300 rounded-xl p-8">
-        <div className="relative flex justify-center items-center text-center">
-          <h2 className=" text-2xl text-gray-700 font-bold mb-4">Title</h2>
+    <div className="fixed top-0 left-0 z-[999] w-full h-full flex justify-center items-center">
+      <div className="m-auto flex flex-col w-[500px] max-h-[500px]  bg-gray-100 border border-gray-400 rounded-md">
+        {/* Header section with icon and close button */}
+        <div className="flex flex-shrink-0 justify-between bg-slate-300/50 items-center border-b border-gray-400 px-3 py-2">
+          {/* Icon on the left side */}
+          <div className="flex items-center">
+            <span className=" font-bold">New Note</span>
+          </div>
+          {/* Mac style close button on the right side */}
+          <CircleButton onClick={onClose}></CircleButton>
         </div>
-        <div className="flex basis-auto gap-3 flex-wrap">{children}</div>
+        <div className="bg-slate-100/50 flex-grow overflow-y-auto hide-scrollbar">
+          {children}
+        </div>
       </div>
+      {/* Overlay that also closes modal on click */}
       <div
         className="bg-gray-600/30 absolute top-0 left-0 h-full w-full z-[-1]"
         onClick={onClose}

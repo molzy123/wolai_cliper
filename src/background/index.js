@@ -62,6 +62,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     case "apiRequest":
       requestApi(request.data, sendResponse);
       break;
+    case "openSettingPage":
+      chrome.runtime.openOptionsPage();
+      break;
     default:
       break;
   }
@@ -76,6 +79,19 @@ chrome.notifications.onButtonClicked.addListener((notificationId) => {
       break;
     default:
       break;
+  }
+});
+
+chrome.commands.onCommand.addListener(function (command) {
+  if (command == "open_popup") {
+    // 查询当前打开的标签页
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      console.log(">>>>>>>>>快捷键");
+      // 向当前打开的标签页发送添加日志的消息
+      chrome.tabs.sendMessage(tabs[0].id, {
+        todo: "addLog",
+      });
+    });
   }
 });
 

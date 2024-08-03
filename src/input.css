@@ -11,3 +11,44 @@
   -ms-overflow-style: none; /* IE 和 Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+/* styles/global.css */
+.toast-green {
+  @apply bg-green-200 text-green-700 border-green-600/40;
+}
+.toast-orange {
+  @apply bg-orange-200 text-orange-700 border-orange-600/40;
+}
+.toast-red {
+  @apply bg-red-200 text-red-700 border-red-600/40;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+.toast-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+.toast-slide-out {
+  animation: slideOut 0.3s ease-in forwards;
+}

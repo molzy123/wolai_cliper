@@ -3,6 +3,8 @@ import { useState, useEffect } from "react";
 import "./content.module.less";
 import Modal from "./components/Modal";
 import Note from "../popup/pages/Note";
+import ToastManager from "../popup/ToastManager";
+import { EventService } from "../EventService";
 
 const Content = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -36,7 +38,7 @@ const Content = () => {
   useEffect(() => {
     // 监听background页面发来的消息
     chrome.runtime.onMessage.addListener((request) => {
-      console.log("接收到background消息：", request);
+      console.log(">>>>>receive message from background", request);
       switch (request.todo) {
         case "addLog":
           showAddLogModal(request.data);
@@ -48,6 +50,10 @@ const Content = () => {
           break;
       }
     });
+
+    EventService.registerEvent("closeModal", () => {
+      closeAddLogModal();
+    });
   }, []);
 
   return (
@@ -57,6 +63,7 @@ const Content = () => {
           <Note></Note>
         </Modal>
       )}
+      <ToastManager></ToastManager>
     </div>
   );
 };

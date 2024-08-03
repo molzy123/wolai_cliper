@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import { ColumnType } from "../../../util/DataUtil";
 
 import { wolai_fetch } from "../../../http/fetch";
+import { EventService } from "../../../EventService";
 
 const Note = () => {
   const settings = useRef(null);
@@ -26,7 +27,11 @@ const Note = () => {
           result.appSecret === undefined ||
           result.curDataBase === undefined
         ) {
-          console.error("请先设置appId、appSecret、dataBase");
+          EventService.dispatchEvent(
+            "showToast",
+            "please set appId、appSecret、dataBase info before ",
+            "red"
+          );
           return;
         }
         settings.current = {
@@ -36,7 +41,8 @@ const Note = () => {
           appToken: result.appToken,
           dataBaseStructure: result.dataBaseInfo[result.curDataBase],
         };
-        setColumns(settings.current.dataBaseStructure);
+
+        setColumns(settings.current.dataBaseStructure.reverse());
       }
     );
   };
@@ -50,25 +56,31 @@ const Note = () => {
       rows: [formData],
     };
     var url = `https://openapi.wolai.com/v1/databases/${settings.current.curDataBase}/rows`;
+
+    console.log(data);
     wolai_fetch(
       url,
       "POST",
       data,
       (result) => {
-        window.close();
+        EventService.dispatchEvent("showToast", "Submit Success!");
+        EventService.dispatchEvent("closeModal");
       },
       settings.current.appToken
     );
   };
 
   return (
-    <div className={"w-full"}>
+    <div className={"w-full h-full"}>
       {/* 当settings不为空时才显示 */}
-      {settings ? (
-        <div className="mr-2">
-          <div className="flex items-center justify-center my-2">
-            <span className="text-2xl"> Add New Note</span>
-          </div>
+      {settings.current != null ? (
+        <div className="m-2">
+          {/* <div className="flex items-center justify-center">
+            <span className="text-lg font-sans font-semibold">
+              {" "}
+              Add New Note
+            </span>
+          </div> */}
           {columns.map((column) => {
             if (column.type === ColumnType.PRIMARY) {
               return (
@@ -108,35 +120,44 @@ const Note = () => {
                 <CheckBox
                   key={column.columnName}
                   label={column.columnName}
-                  checked={false}
                   onChange={(value) => {
                     setFormData({ ...formData, [column.columnName]: value });
                   }}
                 ></CheckBox>
               );
+            } else if (column.type === ColumnType.TEXT) {
+              return (
+                <Input
+                  key={column.columnName}
+                  label={column.columnName}
+                  onChange={(value) => {
+                    setFormData({ ...formData, [column.columnName]: value });
+                  }}
+                ></Input>
+              );
             }
           })}
           <div className=" flex items-center justify-center">
-            <div className="mt-3">
+            <div className="m-3">
               <button
                 className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none"
                 onClick={submit}
               >
-                添加
+                Add
               </button>
             </div>
           </div>
         </div>
       ) : (
-        <div className=" text-center">
-          <h1>请先设置appId、appSecret、dataBase</h1>
+        <div className="h-full w-full flex  flex-col items-center justify-center">
+          <h1 className="text-gray-800 text-lg font-bold">
+            Please set appId、appSecret、dataBase info before
+          </h1>
           {/* 点击前往设置界面 */}
           <button
-            className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none"
+            className="mt-4 px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none"
             onClick={() => {
-              chrome.tabs.create({
-                url: chrome.runtime.getURL("options.html"),
-              });
+              chrome.runtime.sendMessage({ todo: "openSettingPage" });
             }}
           >
             前往设置
