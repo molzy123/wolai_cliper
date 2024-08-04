@@ -21,16 +21,8 @@ const Content = () => {
     chrome.runtime.onMessage.addListener((request) => {
       switch (request.todo) {
         case "add_note":
-          console.log("AddNote>>>>>>", request);
           showAddLogModal(request.data);
           break;
-        case "showToast":
-          console.log("ShowTOast>>>>>>", request);
-          EventService.dispatchEvent(
-            "showToast",
-            request.message,
-            request.color
-          );
         default:
           break;
       }

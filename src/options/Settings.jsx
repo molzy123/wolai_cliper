@@ -10,7 +10,11 @@ const Settings = () => {
   const appToken = useRef(null);
 
   const updateDataBaseInfo = function () {
-    chrome.runtime.sendMessage({ todo: "updateDataBase" });
+    chrome.runtime.sendMessage({
+      todo: "updateDataBase",
+      curDataBase: dataBase,
+      appToken: appToken.current,
+    });
   };
 
   const onConfirm = () => {

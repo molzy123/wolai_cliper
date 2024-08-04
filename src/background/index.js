@@ -36,8 +36,10 @@ chrome.runtime.onInstalled.addListener(() => {});
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.todo === "updateDataBase") {
     chrome.storage.sync.get(["appToken", "curDataBase"], (result) => {
-      const dataBase = result.curDataBase;
-      const token = result.appToken;
+      const dataBase = request.curDataBase
+        ? request.curDataBase
+        : result.curDataBase;
+      const token = request.appToken ? request.appToken : result.appToken;
       wolai_fetch(
         `https://openapi.wolai.com/v1/databases/${dataBase}`,
         "GET",
@@ -65,11 +67,26 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 const showToast = (message, color) => {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, {
-      todo: "showToast",
-      message: message,
-      color: color,
-    });
+    var activeTab = tabs[0];
+    var activeTabUrl = activeTab.url;
+
+    // 检查URL是否以'chrome-extension://'开始，并且包含了本扩展的ID
+    if (
+      activeTabUrl.startsWith("chrome-extension://") &&
+      activeTabUrl.includes(chrome.runtime.id)
+    ) {
+      chrome.runtime.sendMessage({
+        todo: "showToast",
+        message: message,
+        color: color,
+      });
+    } else {
+      chrome.tabs.sendMessage(tabs[0].id, {
+        todo: "showToast",
+        message: message,
+        color: color,
+      });
+    }
   });
 };
 

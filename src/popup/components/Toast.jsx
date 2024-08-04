@@ -24,7 +24,7 @@ const Toast = ({ message, color, duration = 1000, onClose }) => {
     <div
       className={`toast ${
         isActive ? "toast-slide-in" : "toast-slide-out"
-      } fixed top-14 right-8 z-50 p-2 toast-${color} rounded-lg shadow-lg`}
+      } fixed top-14 right-8 z-[999] p-2 toast-${color} rounded-lg shadow-lg`}
     >
       {message}
     </div>
