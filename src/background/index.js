@@ -49,7 +49,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             showToast(result.message, "red");
             return;
           }
-          const columnInfo = DataUtil.extractColumnInfo(result);
+          var columnInfo = {};
+          try {
+            columnInfo = DataUtil.extractColumnInfo(result);
+          } catch (e) {
+            console.log(e);
+            return;
+          }
           var dataBaseInfo = {};
           dataBaseInfo[dataBase] = columnInfo;
           console.log(columnInfo);

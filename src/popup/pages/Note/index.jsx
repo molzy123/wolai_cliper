@@ -40,7 +40,19 @@ const Note = ({ selectInfo = "" }) => {
           appToken: result.appToken,
           dataBaseStructure: result.dataBaseInfo[result.curDataBase],
         };
-        setColumns(settings.current.dataBaseStructure.reverse());
+
+        // let primary filed first
+        var sortArr = [];
+        for (let i = 0; i < settings.current.dataBaseStructure.length; i++) {
+          if (
+            settings.current.dataBaseStructure[i].type === ColumnType.PRIMARY
+          ) {
+            sortArr.unshift(settings.current.dataBaseStructure[i]);
+          } else {
+            sortArr.push(settings.current.dataBaseStructure[i]);
+          }
+        }
+        setColumns(sortArr);
       }
     );
   };
