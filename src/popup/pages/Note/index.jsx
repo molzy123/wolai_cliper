@@ -1,10 +1,10 @@
 /*global chrome*/
-import SingleSelect from "../../components/SingleSelect";
-import MultiSelect from "../../components/MultiSelect";
-import Input from "../../components/Input";
+import SingleSelect from "../../../components/SingleSelect";
+import MultiSelect from "../../../components/MultiSelect";
+import Input from "../../../components/Input";
 import React, { useRef, useState } from "react";
-import Textarea from "../../components/Textarea";
-import CheckBox from "../../components/CheckBox";
+import Textarea from "../../../components/Textarea";
+import CheckBox from "../../../components/CheckBox";
 // import { apiFetch } from "@/http/fetch";
 // import { loginUrl } from "@/http/api";
 import { useEffect } from "react";

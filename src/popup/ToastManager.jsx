@@ -1,6 +1,6 @@
 /*global chrome*/
 import React, { useState, useEffect } from "react";
-import Toast from "./components/Toast";
+import Toast from "../components/Toast";
 import { EventService } from "../EventService";
 
 const ToastManager = () => {

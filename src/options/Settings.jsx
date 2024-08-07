@@ -1,6 +1,6 @@
 /*global chrome*/
 import { useEffect, useRef, useState } from "react";
-import Input from "../popup/components/Input";
+import Input from "../components/Input";
 import { wolai_fetch } from "../http/fetch";
 import { EventService } from "../EventService";
 const Settings = () => {

@@ -1,8 +1,8 @@
 /*global chrome*/
 import React, { useState } from "react";
 import CircleButton from "./CircleButton";
-import SettingIcon from "../../icon/SettingsIcon";
-import RefreshIcon from "../../icon/RefreshIcon";
+import SettingIcon from "../icon/SettingsIcon";
+import RefreshIcon from "../icon/RefreshIcon";
 
 function Modal({ onClose, children }) {
   const openSettingPage = () => {
