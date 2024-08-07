@@ -1,8 +1,6 @@
 import ReactDOM from "react-dom/client";
 import { ConfigProvider } from "antd";
 import zhCN from "antd/es/locale/zh_CN";
-import Options from "./Options";
-import "./index.less";
 import Settings from "./Settings";
 import "../EventService";
 import ToastManager from "../popup/ToastManager";

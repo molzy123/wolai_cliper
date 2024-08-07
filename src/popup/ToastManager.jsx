@@ -27,7 +27,7 @@ const ToastManager = () => {
   }, []);
 
   return (
-    <>
+    <div>
       {toasts.map((toast) => (
         <Toast
           key={toast.id}
@@ -36,7 +36,7 @@ const ToastManager = () => {
           onClose={() => removeToast(toast.id)}
         />
       ))}
-    </>
+    </div>
   );
 };
 

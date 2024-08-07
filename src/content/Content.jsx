@@ -1,6 +1,5 @@
 /*global chrome*/
 import { useState, useEffect } from "react";
-import "./content.module.less";
 import Modal from "../components/Modal";
 import Note from "../popup/pages/Note";
 import ToastManager from "../popup/ToastManager";
