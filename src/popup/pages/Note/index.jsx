@@ -12,11 +12,14 @@ import { ColumnType } from "../../../util/DataUtil";
 
 import { wolai_fetch } from "../../../http/fetch";
 import { EventService } from "../../../EventService";
+import { useBackgroundPort } from "../..";
 
 const Note = ({ selectInfo = "" }) => {
   const settings = useRef(null);
   const [columns, setColumns] = useState([]);
   const [formData, setFormData] = useState();
+
+  const backgroundPort = useBackgroundPort();
   const initSettings = () => {
     chrome.storage.sync.get(
       ["appId", "appSecret", "curDataBase", "appToken", "dataBaseInfo"],
@@ -77,7 +80,8 @@ const Note = ({ selectInfo = "" }) => {
       (result) => {
         EventService.dispatchEvent("showToast", "Submit Success!");
         EventService.dispatchEvent("closeModal");
-        chrome.runtime.sendMessage({
+
+        backgroundPort.postMessage({
           todo: "updateDataBase",
           dataBase: settings.current.curDataBase,
           token: settings.current.appToken,
@@ -175,7 +179,7 @@ const Note = ({ selectInfo = "" }) => {
           <button
             className="mt-4 px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none"
             onClick={() => {
-              chrome.runtime.sendMessage({ todo: "openSettings" });
+              backgroundPort.postMessage({ todo: "openSettings" });
             }}
           >
             前往设置

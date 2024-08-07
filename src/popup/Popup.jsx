@@ -3,8 +3,10 @@ import Note from "./pages/Note";
 import ToastManager from "./ToastManager";
 import "../EventService";
 import NoteWin from "./pages/NoteWin";
+import { useBackgroundPort } from "./index";
 
 const Popup = () => {
+  const backgroundPort = useBackgroundPort();
   const closeWin = () => {
     // 关闭当前窗口
     window.close();
@@ -16,7 +18,11 @@ const Popup = () => {
         {" "}
         <Note></Note>{" "}
       </NoteWin>
-      <ToastManager></ToastManager>
+      <ToastManager
+        addListener={(cb) => {
+          backgroundPort.onMessage.addListener(cb);
+        }}
+      ></ToastManager>
     </div>
   );
 };

@@ -1,17 +1,31 @@
-import ReactDOM from "react-dom/client";
+/*global chrome*/
+import { createRoot } from "react-dom/client";
 import { ConfigProvider } from "antd";
 import zhCN from "antd/es/locale/zh_CN";
 import Settings from "./Settings";
 import "../EventService";
-import ToastManager from "../popup/ToastManager";
 const antdConfig = {
   locale: zhCN,
 };
 
-const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(
-  <ConfigProvider {...antdConfig}>
-    <Settings />
-    <ToastManager></ToastManager>
-  </ConfigProvider>
-);
+let backgroundPort = null;
+
+// 创建一个长连接到后台脚本
+backgroundPort = chrome.runtime.connect({ name: "popup" });
+// 监听 popup 关闭事件
+backgroundPort.onDisconnect.addListener(() => {
+  backgroundPort = null;
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const root = createRoot(document.getElementById("myRoot"));
+  root.render(
+    <ConfigProvider {...antdConfig}>
+      <Settings />
+    </ConfigProvider>
+  );
+});
+
+export const useBackgroundPort = () => {
+  return backgroundPort;
+};

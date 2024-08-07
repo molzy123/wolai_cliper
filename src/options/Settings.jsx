@@ -3,14 +3,17 @@ import { useEffect, useRef, useState } from "react";
 import Input from "../components/Input";
 import { wolai_fetch } from "../http/fetch";
 import { EventService } from "../EventService";
+import { useBackgroundPort } from ".";
+import ToastManager from "../popup/ToastManager";
 const Settings = () => {
   const [appId, setAppId] = useState("");
   const [appSecret, setAppSecret] = useState("");
   const [dataBase, setDataBase] = useState("");
   const appToken = useRef(null);
+  const backgroundPort = useBackgroundPort();
 
   const updateDataBaseInfo = function () {
-    chrome.runtime.sendMessage({
+    backgroundPort.postMessage({
       todo: "updateDataBase",
       curDataBase: dataBase,
       appToken: appToken.current,
@@ -55,6 +58,7 @@ const Settings = () => {
   };
 
   useEffect(() => {
+    console.log(">>>>>>>Settings");
     chrome.storage.sync.get(
       ["appId", "appSecret", "curDataBase", "appToken"],
       (result) => {
@@ -104,6 +108,12 @@ const Settings = () => {
         </div>
         {appToken.current && <div>Token : {appToken.current}</div>}
       </div>
+
+      <ToastManager
+        addListener={(cb) => {
+          backgroundPort.onMessage.addListener(cb);
+        }}
+      />
     </div>
   );
 };

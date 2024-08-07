@@ -1,8 +1,54 @@
 /*global chrome*/
-import { apiFetch } from "@/http/fetch";
 import { wolai_fetch } from "../http/fetch";
-import { EventService } from "../EventService";
 import DataUtil from "../util/DataUtil";
+import ConnectHandler from "./ConnectHandler";
+
+const popupConnectHandler = new ConnectHandler("popup");
+popupConnectHandler.start();
+const contentConnectHandler = new ConnectHandler("content");
+contentConnectHandler.start();
+const settingsConnectHandler = new ConnectHandler("settings");
+settingsConnectHandler.start();
+
+const commonReceiveMessage = (msg, handler) => {
+  if (msg.todo === "updateDataBase") {
+    chrome.storage.sync.get(["appToken", "curDataBase"], (result) => {
+      const dataBase = msg.curDataBase ? msg.curDataBase : result.curDataBase;
+      const token = msg.appToken ? msg.appToken : result.appToken;
+      wolai_fetch(
+        `https://openapi.wolai.com/v1/databases/${dataBase}`,
+        "GET",
+        undefined,
+        function (result) {
+          if (result.error_code != undefined) {
+            handler.showToast(result.message, "red");
+            return;
+          }
+          var columnInfo = {};
+          try {
+            columnInfo = DataUtil.extractColumnInfo(result);
+          } catch (e) {
+            console.log(e);
+            return;
+          }
+          var dataBaseInfo = {};
+          dataBaseInfo[dataBase] = columnInfo;
+          console.log(columnInfo);
+          chrome.storage.sync.set({ dataBaseInfo: dataBaseInfo });
+          chrome.storage.sync.set({ curDataBase: dataBase });
+          handler.showToast("Refresh Success!", "green");
+        },
+        token
+      );
+    });
+  } else if (msg.todo === "openSettings") {
+    open_setting_page();
+  }
+};
+
+popupConnectHandler.addOnMessageCallBack(commonReceiveMessage);
+contentConnectHandler.addOnMessageCallBack(commonReceiveMessage);
+settingsConnectHandler.addOnMessageCallBack(commonReceiveMessage);
 
 // 创建上下文菜单
 const contextMenus = [{ id: "add_note", title: "Add Note & Edit" }];
@@ -32,70 +78,6 @@ chrome.contextMenus.onClicked.addListener((info) => {
 
 chrome.runtime.onInstalled.addListener(() => {});
 
-// 监听message
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.todo === "updateDataBase") {
-    chrome.storage.sync.get(["appToken", "curDataBase"], (result) => {
-      const dataBase = request.curDataBase
-        ? request.curDataBase
-        : result.curDataBase;
-      const token = request.appToken ? request.appToken : result.appToken;
-      wolai_fetch(
-        `https://openapi.wolai.com/v1/databases/${dataBase}`,
-        "GET",
-        undefined,
-        function (result) {
-          if (result.error_code != undefined) {
-            showToast(result.message, "red");
-            return;
-          }
-          var columnInfo = {};
-          try {
-            columnInfo = DataUtil.extractColumnInfo(result);
-          } catch (e) {
-            console.log(e);
-            return;
-          }
-          var dataBaseInfo = {};
-          dataBaseInfo[dataBase] = columnInfo;
-          console.log(columnInfo);
-          chrome.storage.sync.set({ dataBaseInfo: dataBaseInfo });
-          chrome.storage.sync.set({ curDataBase: dataBase });
-          showToast("Refresh Success!", "green");
-        },
-        token
-      );
-    });
-  } else if (request.todo === "openSettings") {
-    open_setting_page();
-  }
-});
-
-const showToast = (message, color) => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    var activeTab = tabs[0];
-    var activeTabUrl = activeTab.url;
-
-    // 检查URL是否以'chrome-extension://'开始，并且包含了本扩展的ID
-    if (
-      activeTabUrl.startsWith("chrome-extension://") &&
-      activeTabUrl.includes(chrome.runtime.id)
-    ) {
-      chrome.runtime.sendMessage({
-        todo: "showToast",
-        message: message,
-        color: color,
-      });
-    } else {
-      chrome.tabs.sendMessage(tabs[0].id, {
-        todo: "showToast",
-        message: message,
-        color: color,
-      });
-    }
-  });
-};
-
 // 监听系统消息通知的按钮点击事件
 chrome.notifications.onButtonClicked.addListener((notificationId) => {
   switch (notificationId) {
@@ -114,11 +96,9 @@ chrome.commands.onCommand.addListener(function (command) {
 });
 
 const open_note = (data) => {
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.tabs.sendMessage(tabs[0].id, {
-      todo: "add_note",
-      data: data,
-    });
+  contentConnectHandler.sendMessage({
+    todo: "add_note",
+    data: data,
   });
 };
 

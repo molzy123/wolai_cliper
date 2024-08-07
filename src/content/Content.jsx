@@ -1,14 +1,15 @@
 /*global chrome*/
 import { useState, useEffect } from "react";
-import Modal from "../components/Modal";
-import Note from "../popup/pages/Note";
-import ToastManager from "../popup/ToastManager";
+// import Modal from "../components/Modal";
+// import Note from "../popup/pages/Note";
+// import ToastManager from "../popup/ToastManager";
 import { EventService } from "../EventService";
+// import { useBackgroundPort } from "./index";
 
 const Content = () => {
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [selectedText, setSelectedText] = useState("");
-
+  // const backgroundPort = useBackgroundPort();
   // 打开添加日志弹窗
   const showAddLogModal = (value) => {
     setSelectedText(value);
@@ -34,12 +35,16 @@ const Content = () => {
 
   return (
     <div className="CRX-antd-diy">
-      {showNoteModal && (
+      {/* {showNoteModal && (
         <Modal onClose={() => setShowNoteModal(false)}>
           <Note selectInfo={selectedText}></Note>
         </Modal>
       )}
-      <ToastManager></ToastManager>
+      <ToastManager
+        addListener={(cb) => {
+          // backgroundPort.onMessage.addListener(cb);
+        }}
+      /> */}
     </div>
   );
 };

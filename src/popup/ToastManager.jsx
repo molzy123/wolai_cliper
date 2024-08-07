@@ -1,16 +1,9 @@
-/*global chrome*/
 import React, { useState, useEffect } from "react";
 import Toast from "../components/Toast";
 import { EventService } from "../EventService";
 
-const ToastManager = () => {
+const ToastManager = ({ addListener }) => {
   const [toasts, setToasts] = useState([]);
-
-  const addToast = (message, color) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    setToasts([...toasts, { id, message, color }]);
-  };
-
   const removeToast = (id) => {
     setToasts(toasts.filter((toast) => toast.id !== id));
   };
@@ -19,7 +12,12 @@ const ToastManager = () => {
       addToast(message, color);
     });
 
-    chrome.runtime.onMessage.addListener((request) => {
+    const addToast = (message, color) => {
+      const id = Math.random().toString(36).substr(2, 9);
+      setToasts([...toasts, { id, message, color }]);
+    };
+
+    addListener((request) => {
       if (request.todo === "showToast") {
         addToast(request.message, request.color);
       }

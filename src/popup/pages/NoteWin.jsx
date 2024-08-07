@@ -1,16 +1,17 @@
-/*global chrome*/
 import React from "react";
 import SettingIcon from "../../icon/SettingsIcon";
 import RefreshIcon from "../../icon/RefreshIcon";
 import CircleButton from "./../../components/CircleButton";
+import { useBackgroundPort } from "..";
 
 function NoteWin({ onClose, children }) {
+  const backgroundPort = useBackgroundPort();
   const openSettingPage = () => {
-    chrome.runtime.sendMessage({ todo: "openSettings" });
+    backgroundPort.postMessage({ todo: "openSettings" });
   };
 
   const refreshDataBase = () => {
-    chrome.runtime.sendMessage({ todo: "updateDataBase" });
+    backgroundPort.postMessage({ todo: "updateDataBase" });
   };
 
   return (

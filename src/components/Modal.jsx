@@ -3,14 +3,6 @@ import React from "react";
 import NoteWin from "../popup/pages/NoteWin";
 
 function Modal({ onClose, children }) {
-  const openSettingPage = () => {
-    chrome.runtime.sendMessage({ todo: "openSettings" });
-  };
-
-  const refreshDataBase = () => {
-    chrome.runtime.sendMessage({ todo: "updateDataBase" });
-  };
-
   return (
     <div className="fixed top-0 left-0 z-[10] w-full h-full flex justify-center items-center">
       <NoteWin onClose={onClose}>{children}</NoteWin>
