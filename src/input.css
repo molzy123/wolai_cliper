@@ -14,13 +14,16 @@
 
 /* styles/global.css */
 .toast-green {
-  @apply bg-green-200 text-green-700 border-green-600/40;
+  @apply bg-green-200 text-green-700 border-green-600/50;
+  border-width: 1px;
 }
 .toast-orange {
-  @apply bg-orange-200 text-orange-700 border-orange-600/40;
+  @apply bg-orange-200 text-orange-700 border-orange-600/50;
+  border-width: 1px;
 }
 .toast-red {
-  @apply bg-red-200 text-red-700 border-red-600/40;
+  @apply bg-red-200 text-red-700 border-red-600/50;
+  border-width: 1px;
 }
 
 @keyframes slideIn {

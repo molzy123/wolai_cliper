@@ -5,6 +5,8 @@ import Content from "./Content";
 // 将content页面添加到body
 const contentRoot = document.createElement("div");
 contentRoot.id = "CRX-contentRoot";
+contentRoot.style =
+  "z-index: 2147483647; overflow: visible; position: relative; width: 0px; height: 0px; display: block;";
 document.body.appendChild(contentRoot);
 
 // 在content下创建一个Shadow空间

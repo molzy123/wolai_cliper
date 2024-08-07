@@ -12,7 +12,7 @@ function Modal({ onClose, children }) {
   };
 
   return (
-    <div className="fixed top-0 left-0 z-[999] w-full h-full flex justify-center items-center">
+    <div className="fixed top-0 left-0 z-[10] w-full h-full flex justify-center items-center">
       <NoteWin onClose={onClose}>{children}</NoteWin>
       {/* Overlay that also closes modal on click */}
       <div
