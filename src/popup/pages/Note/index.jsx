@@ -16,7 +16,7 @@ import { EventService } from "../../../EventService";
 const Note = ({ selectInfo = "" }) => {
   const settings = useRef(null);
   const [columns, setColumns] = useState([]);
-  const [formData, setFormData] = useState({ 标题: selectInfo });
+  const [formData, setFormData] = useState();
   const initSettings = () => {
     chrome.storage.sync.get(
       ["appId", "appSecret", "curDataBase", "appToken", "dataBaseInfo"],
@@ -53,6 +53,9 @@ const Note = ({ selectInfo = "" }) => {
           }
         }
         setColumns(sortArr);
+        var initFormData = {};
+        initFormData[sortArr[0].columnName] = selectInfo;
+        setFormData(initFormData);
       }
     );
   };
