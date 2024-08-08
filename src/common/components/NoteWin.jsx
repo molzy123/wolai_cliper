@@ -1,11 +1,9 @@
 import React from "react";
-import SettingIcon from "../../icon/SettingsIcon";
-import RefreshIcon from "../../icon/RefreshIcon";
-import CircleButton from "./../../components/CircleButton";
-import { useBackgroundPort } from "..";
+import SettingIcon from "../icon/SettingsIcon";
+import RefreshIcon from "../icon/RefreshIcon";
+import CircleButton from "./CircleButton";
 
-function NoteWin({ onClose, children }) {
-  const backgroundPort = useBackgroundPort();
+function NoteWin({ onClose, backgroundPort, children }) {
   const openSettingPage = () => {
     backgroundPort.postMessage({ todo: "openSettings" });
   };

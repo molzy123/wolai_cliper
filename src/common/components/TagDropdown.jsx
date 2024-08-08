@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
 import Tag from "./Tag";
-import { EventService } from "../EventService";
 const TagDropdown = ({ options, onSelectChange, isSingle }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");

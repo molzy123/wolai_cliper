@@ -9,6 +9,8 @@ const antdConfig = {
 
 let backgroundPort = null;
 const root = createRoot(document.getElementById("root"));
+
+
 // 创建一个长连接到后台脚本
 backgroundPort = chrome.runtime.connect({ name: "popup" });
 // 监听 popup 关闭事件

@@ -1,19 +1,23 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import FormLabel from "./FormLabel";
 import TagDropdown from "./TagDropdown";
-const MultiSelect = ({ options, label, onSelectChange }) => {
+const SingleSelect = ({ options, label, onSelectChange }) => {
+  const _onSelectChange = (tags) => {
+    onSelectChange(tags[0]);
+  };
+
   return (
-    <div className="relative my-2">
+    <div className="relative">
       <div className="flex items-start justify-start">
         <FormLabel label={label}></FormLabel>
         <TagDropdown
           options={options}
-          onSelectChange={onSelectChange}
-          isSingle={false}
+          onSelectChange={_onSelectChange}
+          isSingle={true}
         ></TagDropdown>
       </div>
     </div>
   );
 };
 
-export default MultiSelect;
+export default SingleSelect;

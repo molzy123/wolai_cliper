@@ -1,5 +1,6 @@
 import React from "react";
 import FormLabel from "./FormLabel";
+
 const Input = ({ label, value, onChange, placeholder, type = "text" }) => {
   const handleInputChange = (event) => {
     onChange(event.target.value);

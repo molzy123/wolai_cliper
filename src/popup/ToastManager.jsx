@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Toast from "../components/Toast";
-import { EventService } from "../EventService";
+import Toast from "../common/components/Toast";
+import { EventService } from "../common/EventService";
 
 const ToastManager = ({ addListener }) => {
   const [toasts, setToasts] = useState([]);
@@ -22,7 +22,7 @@ const ToastManager = ({ addListener }) => {
         addToast(request.message, request.color);
       }
     });
-  }, []);
+  }, [addListener, toasts]);
 
   return (
     <div>

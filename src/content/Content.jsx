@@ -1,20 +1,35 @@
 /*global chrome*/
 import { useState, useEffect } from "react";
-// import Modal from "../components/Modal";
-// import Note from "../popup/pages/Note";
-// import ToastManager from "../popup/ToastManager";
-import { EventService } from "../EventService";
-// import { useBackgroundPort } from "./index";
+import Note from "../common/components/Note";
+import ToastManager from "../popup/ToastManager";
+import { EventService } from "../common/EventService";
+import { useBackgroundPort } from ".";
+import NoteWin from "../common/components/NoteWin";
+import Modal from "../common/components/Modal";
 
 const Content = () => {
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [selectedText, setSelectedText] = useState("");
-  // const backgroundPort = useBackgroundPort();
+  const backgroundPort = useBackgroundPort();
+  const [settings, setSettings] = useState(null);
   // 打开添加日志弹窗
   const showAddLogModal = (value) => {
     setSelectedText(value);
     setShowNoteModal(true);
   };
+
+  useEffect(() => {
+    const onMessage = (message) => {
+      if (message.todo === "initSettings") {
+        setSettings(message.data);
+      }
+    };
+    backgroundPort.onMessage.addListener(onMessage);
+
+    return () => {
+      backgroundPort.onMessage.removeListener(onMessage);
+    };
+  }, [backgroundPort.onMessage]);
 
   useEffect(() => {
     // 监听background页面发来的消息
@@ -35,16 +50,25 @@ const Content = () => {
 
   return (
     <div className="CRX-antd-diy">
-      {/* {showNoteModal && (
+      {showNoteModal && (
         <Modal onClose={() => setShowNoteModal(false)}>
-          <Note selectInfo={selectedText}></Note>
+          <NoteWin
+            onClose={() => setShowNoteModal(false)}
+            backgroundPort={backgroundPort}
+          >
+            <Note
+              selectInfo={selectedText}
+              settings={settings}
+              backgroundPort={backgroundPort}
+            ></Note>
+          </NoteWin>
         </Modal>
       )}
       <ToastManager
         addListener={(cb) => {
-          // backgroundPort.onMessage.addListener(cb);
+          backgroundPort.onMessage.addListener(cb);
         }}
-      /> */}
+      />
     </div>
   );
 };

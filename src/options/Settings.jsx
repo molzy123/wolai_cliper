@@ -1,8 +1,8 @@
 /*global chrome*/
 import { useEffect, useRef, useState } from "react";
-import Input from "../components/Input";
-import { wolai_fetch } from "../http/fetch";
-import { EventService } from "../EventService";
+import Input from "../common/components/Input";
+import { wolai_fetch } from "../common/http/fetch";
+import { EventService } from "../common/EventService";
 import { useBackgroundPort } from ".";
 import ToastManager from "../popup/ToastManager";
 const Settings = () => {
@@ -35,7 +35,7 @@ const Settings = () => {
           "POST",
           requestData,
           function (result) {
-            if (result.data == undefined) {
+            if (result.data === undefined) {
               EventService.dispatchEvent(
                 "showToast",
                 "appId or appSecret error",

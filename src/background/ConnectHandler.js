@@ -7,6 +7,10 @@ export default class ConnectHandler {
     this.onDisconnectCallBackList = [];
   }
 
+  addOnConnectCallBack(callback) {
+    this.onConnectCallBackList.push(callback);
+  }
+
   addOnMessageCallBack(callback) {
     this.onMessageCallBackList.push(callback);
   }
@@ -18,7 +22,11 @@ export default class ConnectHandler {
   }
 
   start() {
+    var handler = this;
     chrome.runtime.onConnect.addListener((port) => {
+      handler.port = port;
+      console.log("onConnect", port.name, this.name);
+
       if (port.name !== this.name) {
         return;
       }
@@ -29,12 +37,14 @@ export default class ConnectHandler {
       port.onDisconnect.addListener(() => {
         this.onDisconnectCallBackList.forEach((cb) => cb(this));
       });
-      this.port = port;
+      console.log("ConnectHandler start", handler);
     });
   }
 
   sendMessage(msg) {
     if (this.port === undefined) {
+      console.log(this);
+
       console.error("Port is undefined");
       return;
     }
