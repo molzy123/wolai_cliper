@@ -7,16 +7,15 @@ const antdConfig = {
   locale: zhCN,
 };
 
-let backgroundPort = null;
+// let backgroundPort = null;
 const root = createRoot(document.getElementById("root"));
 
-
 // 创建一个长连接到后台脚本
-backgroundPort = chrome.runtime.connect({ name: "popup" });
-// 监听 popup 关闭事件
-backgroundPort.onDisconnect.addListener(() => {
-  console.log("Popup is closed");
-});
+// backgroundPort = chrome.runtime.connect({ name: "popup" });
+// // 监听 popup 关闭事件
+// backgroundPort.onDisconnect.addListener(() => {
+//   console.log("Popup is closed");
+// });
 
 root.render(
   <ConfigProvider {...antdConfig}>
@@ -25,6 +24,6 @@ root.render(
 );
 
 // 自定义usePortal
-export const useBackgroundPort = () => {
-  return backgroundPort;
-};
+// export const useBackgroundPort = () => {
+//   return backgroundPort;
+// };

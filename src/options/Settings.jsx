@@ -1,73 +1,46 @@
 /*global chrome*/
 import { useEffect, useRef, useState } from "react";
 import Input from "../common/components/Input";
-import { wolai_fetch } from "../common/http/fetch";
-import { EventService } from "../common/EventService";
-import { useBackgroundPort } from ".";
-import ToastManager from "../popup/ToastManager";
 const Settings = () => {
   const [appId, setAppId] = useState("");
   const [appSecret, setAppSecret] = useState("");
   const [dataBase, setDataBase] = useState("");
   const appToken = useRef(null);
-  const backgroundPort = useBackgroundPort();
+  const settings = useRef({});
 
   const updateDataBaseInfo = function () {
-    backgroundPort.postMessage({
+    chrome.runtime.sendMessage({
       todo: "updateDataBase",
-      curDataBase: dataBase,
       appToken: appToken.current,
+      curDataBase: dataBase,
     });
   };
 
   const onConfirm = () => {
-    chrome.storage.sync.get(["appId", "appSecret"], (result) => {
-      if (result.appId === appId && result.appSecret === appSecret) {
-        updateDataBaseInfo();
-        return;
-      } else {
-        const requestData = {
-          appId: appId,
-          appSecret: appSecret,
-        };
-        wolai_fetch(
-          "https://openapi.wolai.com/v1/token",
-          "POST",
-          requestData,
-          function (result) {
-            if (result.data === undefined) {
-              EventService.dispatchEvent(
-                "showToast",
-                "appId or appSecret error",
-                "red"
-              );
-            } else {
-              appToken.current = result.data.app_token;
-              chrome.storage.sync.set({
-                appId: appId,
-                appSecret: appSecret,
-                appToken: appToken.current,
-              });
-              EventService.dispatchEvent("showToast", "Save Success!");
-              updateDataBaseInfo();
-            }
-          }
-        );
-      }
-    });
+    if (
+      settings.current.appId === appId &&
+      settings.current.appSecret === appSecret
+    ) {
+      updateDataBaseInfo();
+      return;
+    } else {
+      chrome.runtime.sendMessage({
+        todo: "saveSettings",
+        appId: appId,
+        appSecret: appSecret,
+        curDataBase: dataBase,
+      });
+    }
   };
 
   useEffect(() => {
-    console.log(">>>>>>>Settings");
-    chrome.storage.sync.get(
-      ["appId", "appSecret", "curDataBase", "appToken"],
-      (result) => {
-        setAppId(result.appId || "");
-        setAppSecret(result.appSecret || "");
-        setDataBase(result.curDataBase || "");
-        appToken.current = result.appToken;
-      }
-    );
+    chrome.runtime.sendMessage({ todo: "getSettings" }, (response) => {
+      setAppId(response.appId || "");
+      setAppSecret(response.appSecret || "");
+      setDataBase(response.curDataBase || "");
+      appToken.current = response.appToken;
+      settings.current = response;
+    });
   }, []);
 
   return (
@@ -109,11 +82,11 @@ const Settings = () => {
         {appToken.current && <div>Token : {appToken.current}</div>}
       </div>
 
-      <ToastManager
+      {/* <ToastManager
         addListener={(cb) => {
           backgroundPort.onMessage.addListener(cb);
         }}
-      />
+      /> */}
     </div>
   );
 };

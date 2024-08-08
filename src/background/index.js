@@ -1,39 +1,82 @@
 /*global chrome*/
 import { wolai_fetch } from "../common/http/fetch";
 import DataUtil from "../common/util/DataUtil";
-import ConnectHandler from "./ConnectHandler";
-import { ColumnType } from "../common/util/DataUtil";
 
-const popupConnectHandler = new ConnectHandler("popup");
-popupConnectHandler.start();
-const contentConnectHandler = new ConnectHandler("content");
-contentConnectHandler.start();
-const settingsConnectHandler = new ConnectHandler("settings");
-settingsConnectHandler.start();
+/**
+ * @typedef {Object} SettingInfo
+ * @property {string} appId
+ * @property {string} appSecret
+ * @property {string} appToken
+ * @property {string} curDataBase
+ * @property {object} dataBaseStructure
+ */
 
-var settings = null;
+/**
+ * @type {SettingInfo}
+ */
+var settings = {};
 
-const commonReceiveMessage = (msg, handler) => {
+const commonReceiveMessage = (msg) => {
   if (msg.todo === "updateDataBase") {
-    updateDataBase(msg.appToken, msg.curDataBase, handler);
+    updateDataBase(msg.appToken, msg.curDataBase);
   } else if (msg.todo === "openSettings") {
     open_setting_page();
   } else if (msg.todo === "postNote") {
-    postNote(msg.data, msg.dataBaseId, handler);
+    console.log("receivePostNote", msg);
+    postNote(msg.data, msg.dataBaseId);
+  } else if (msg.todo === "saveSettings") {
+    saveSettings(msg.appId, msg.appSecret, msg.curDataBase);
   }
 };
 
-const postNote = (row, dataBaseId, handler) => {
+/**
+ * @param {string} appId
+ * @param {string} appSecret
+ * @param {string} curDataBase 当前数据库id
+ */
+const saveSettings = (appId, appSecret, curDataBase) => {
+  const requestData = {
+    appId: appId,
+    appSecret: appSecret,
+  };
+  wolai_fetch(
+    "https://openapi.wolai.com/v1/token",
+    "POST",
+    requestData,
+    function (result) {
+      const appToken = result.data.app_token;
+      chrome.storage.sync.set({
+        appId: appId,
+        appSecret: appSecret,
+        appToken: appToken,
+      });
+      settings.appId = appId;
+      settings.appSecret = appSecret;
+      settings.appToken = appToken;
+      updateDataBase(appToken, curDataBase);
+    }
+  );
+};
+
+const postNote = (row, dataBaseId) => {
+  console.log("postNote databaseid", dataBaseId);
   var data = {
     rows: [row],
   };
   var url = `https://openapi.wolai.com/v1/databases/${dataBaseId}/rows`;
-  wolai_fetch(url, "POST", data, (result) => {
-    updateDataBase(null, dataBaseId, handler);
-  });
+  wolai_fetch(
+    url,
+    "POST",
+    data,
+    (result) => {
+      console.log(">>>>>>postNoteSuccess", result);
+      updateDataBase(null, dataBaseId);
+    },
+    settings.appToken
+  );
 };
 
-const updateDataBase = (appToken, dataBaseId, handler) => {
+const updateDataBase = (appToken, dataBaseId) => {
   if (appToken === undefined) {
     appToken = settings.appToken;
   }
@@ -46,7 +89,6 @@ const updateDataBase = (appToken, dataBaseId, handler) => {
     undefined,
     function (result) {
       if (result.error_code !== undefined) {
-        handler.showToast(result.message, "red");
         return;
       }
       var columnInfo = {};
@@ -58,32 +100,14 @@ const updateDataBase = (appToken, dataBaseId, handler) => {
       }
       var dataBaseInfo = {};
       dataBaseInfo[dataBaseId] = columnInfo;
-      console.log(columnInfo);
       chrome.storage.sync.set({ dataBaseInfo: dataBaseInfo });
       chrome.storage.sync.set({ curDataBase: dataBaseId });
-      handler.showToast("Refresh Success!", "green");
+      settings.curDataBase = dataBaseId;
+      settings.dataBaseStructure = DataUtil.sortColumn(columnInfo);
     },
     appToken
   );
 };
-
-const commonSendMessage = (msg) => {
-  console.log("commonSendMessage", msg);
-
-  popupConnectHandler.sendMessage(msg);
-  contentConnectHandler.sendMessage(msg);
-  settingsConnectHandler.sendMessage(msg);
-};
-
-popupConnectHandler.addOnMessageCallBack(commonReceiveMessage);
-contentConnectHandler.addOnMessageCallBack(commonReceiveMessage);
-settingsConnectHandler.addOnMessageCallBack(commonReceiveMessage);
-
-popupConnectHandler.addOnConnectCallBack((handler) => {
-  console.log("popupConnectHandler onConnect send settings", settings);
-
-  handler.sendMessage({ event: "initSettings", data: settings });
-});
 
 // 创建上下文菜单
 const contextMenus = [{ id: "add_note", title: "Add Note & Edit" }];
@@ -99,9 +123,26 @@ for (let menu of contextMenus) {
 }
 
 const open_note = (data) => {
-  contentConnectHandler.sendMessage({
+  sendToContent({
     todo: "add_note",
     data: data,
+  });
+};
+
+const sendToContent = (msg) => {
+  chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    console.log("sendToContent", tabs);
+    var activeTab = tabs[0];
+    var activeTabUrl = activeTab.url;
+    // 检查URL是否以'chrome-extension://'开始，并且包含了本扩展的ID
+    if (
+      activeTabUrl.startsWith("chrome-extension://") &&
+      activeTabUrl.includes(chrome.runtime.id)
+    )
+      return;
+
+    // 向content script发送消息
+    chrome.tabs.sendMessage(activeTab.id, msg);
   });
 };
 
@@ -109,25 +150,10 @@ const open_setting_page = () => {
   chrome.runtime.openOptionsPage();
 };
 
-const onInitSettings = (data) => {
-  var dataBaseStructure = data.dataBaseStructure;
-  // let primary filed first
-  var sortArr = [];
-  for (let i = 0; i < dataBaseStructure.length; i++) {
-    if (dataBaseStructure[i].type === ColumnType.PRIMARY) {
-      sortArr.unshift(dataBaseStructure[i]);
-    } else {
-      sortArr.push(dataBaseStructure[i]);
-    }
-  }
-  settings = data;
-};
-
 chrome.storage.sync.get(
   ["appId", "appSecret", "curDataBase", "appToken", "dataBaseInfo"],
   (result) => {
-    console.log(result);
-
+    console.trace("initSettings", result);
     if (
       result.appId === undefined ||
       result.appSecret === undefined ||
@@ -135,15 +161,16 @@ chrome.storage.sync.get(
     ) {
       return;
     }
-    var settings = {
+
+    settings = {
       appId: result.appId,
       appSecret: result.appSecret,
       curDataBase: result.curDataBase,
       appToken: result.appToken,
-      dataBaseStructure: result.dataBaseInfo[result.curDataBase],
+      dataBaseStructure: DataUtil.sortColumn(
+        result.dataBaseInfo[result.curDataBase]
+      ),
     };
-
-    onInitSettings(settings);
   }
 );
 
@@ -179,3 +206,13 @@ chrome.commands.onCommand.addListener(function (command) {
   }
 });
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.todo === "getSettings") {
+    console.log("onGetSettings", settings);
+    sendResponse(settings);
+  }
+});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  commonReceiveMessage(request);
+});

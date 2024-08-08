@@ -65,6 +65,23 @@ const module = {
     }
     return columnInfo;
   },
+
+  /**
+   *
+   * @param {Array<{type:string}>} columns
+   * @returns {Array<{type:string}>}
+   */
+  sortColumn(columns) {
+    var sortArr = [];
+    for (let i = 0; i < columns.length; i++) {
+      if (columns[i].type === ColumnType.PRIMARY) {
+        sortArr.unshift(columns[i]);
+      } else {
+        sortArr.push(columns[i]);
+      }
+    }
+    return sortArr;
+  },
 };
 
 export default module;

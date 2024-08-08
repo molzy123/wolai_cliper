@@ -1,16 +1,13 @@
 /*global chrome*/
 import { useState, useEffect } from "react";
 import Note from "../common/components/Note";
-import ToastManager from "../popup/ToastManager";
 import { EventService } from "../common/EventService";
-import { useBackgroundPort } from ".";
 import NoteWin from "../common/components/NoteWin";
 import Modal from "../common/components/Modal";
 
 const Content = () => {
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [selectedText, setSelectedText] = useState("");
-  const backgroundPort = useBackgroundPort();
   const [settings, setSettings] = useState(null);
   // 打开添加日志弹窗
   const showAddLogModal = (value) => {
@@ -19,21 +16,16 @@ const Content = () => {
   };
 
   useEffect(() => {
-    const onMessage = (message) => {
-      if (message.todo === "initSettings") {
-        setSettings(message.data);
-      }
-    };
-    backgroundPort.onMessage.addListener(onMessage);
+    chrome.runtime.sendMessage({ todo: "getSettings" }, (response) => {
+      console.log("getSettings", response);
+      setSettings(response);
+    });
 
-    return () => {
-      backgroundPort.onMessage.removeListener(onMessage);
-    };
-  }, [backgroundPort.onMessage]);
-
-  useEffect(() => {
-    // 监听background页面发来的消息
-    chrome.runtime.onMessage.addListener((request) => {
+    chrome.runtime.onMessage.addListener(function (
+      request,
+      sender,
+      sendResponse
+    ) {
       switch (request.todo) {
         case "add_note":
           showAddLogModal(request.data);
@@ -42,33 +34,53 @@ const Content = () => {
           break;
       }
     });
-
     EventService.registerEvent("closeModal", () => {
       setShowNoteModal(false);
     });
   }, []);
 
+  const onClickRefresh = () => {
+    chrome.runtime.sendMessage({ todo: "updateDataBase" });
+  };
+
+  const onClickSettings = () => {
+    chrome.runtime.sendMessage({ todo: "openSettings" });
+  };
+
+  const closeWin = () => {
+    setShowNoteModal(false);
+  };
+
+  const submit = (formData) => {
+    chrome.runtime.sendMessage(
+      {
+        todo: "postNote",
+        data: formData,
+        dataBaseId: settings.curDataBase,
+      },
+      (response) => {
+        closeWin();
+      }
+    );
+  };
+
   return (
     <div className="CRX-antd-diy">
-      {showNoteModal && (
-        <Modal onClose={() => setShowNoteModal(false)}>
+      {showNoteModal && settings.dataBaseStructure && (
+        <Modal onClose={closeWin}>
           <NoteWin
-            onClose={() => setShowNoteModal(false)}
-            backgroundPort={backgroundPort}
+            onClose={closeWin}
+            onClickRefresh={onClickRefresh}
+            onClickSettings={onClickSettings}
           >
             <Note
               selectInfo={selectedText}
-              settings={settings}
-              backgroundPort={backgroundPort}
+              columns={settings.dataBaseStructure}
+              onSubmit={submit}
             ></Note>
           </NoteWin>
         </Modal>
       )}
-      <ToastManager
-        addListener={(cb) => {
-          backgroundPort.onMessage.addListener(cb);
-        }}
-      />
     </div>
   );
 };

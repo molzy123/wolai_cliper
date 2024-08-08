@@ -8,15 +8,6 @@ const antdConfig = {
   locale: zhCN,
 };
 
-let backgroundPort = null;
-
-// 创建一个长连接到后台脚本
-backgroundPort = chrome.runtime.connect({ name: "popup" });
-// 监听 popup 关闭事件
-backgroundPort.onDisconnect.addListener(() => {
-  backgroundPort = null;
-});
-
 document.addEventListener("DOMContentLoaded", function () {
   const root = createRoot(document.getElementById("myRoot"));
   root.render(
@@ -25,7 +16,3 @@ document.addEventListener("DOMContentLoaded", function () {
     </ConfigProvider>
   );
 });
-
-export const useBackgroundPort = () => {
-  return backgroundPort;
-};
