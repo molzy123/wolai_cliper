@@ -6,6 +6,7 @@ import NoteWin from "../common/components/NoteWin";
 import Modal from "../common/components/Modal";
 import { ResponseState } from "../common/Type";
 import Toast from "../common/components/Toast";
+import UnSettingUI from "../common/components/UnSettingUI";
 
 const Content = () => {
   const [showNoteModal, setShowNoteModal] = useState(false);
@@ -93,23 +94,30 @@ const Content = () => {
     );
   };
 
+  console.log(showNoteModal && (!settings || !settings.dataBaseStructure));
+
   return (
     <div className="CRX-antd-diy">
-      {showNoteModal && settings.dataBaseStructure && (
+      {showNoteModal && (
         <Modal onClose={closeWin}>
           <NoteWin
             onClose={closeWin}
             onClickRefresh={onClickRefresh}
             onClickSettings={onClickSettings}
           >
-            <Note
-              selectInfo={selectedText}
-              columns={settings.dataBaseStructure}
-              onSubmit={submit}
-            ></Note>
+            {settings && settings.dataBaseStructure ? (
+              <Note
+                selectInfo={selectedText}
+                columns={settings.dataBaseStructure}
+                onSubmit={submit}
+              ></Note>
+            ) : (
+              <UnSettingUI onClickSettings={onClickSettings}></UnSettingUI>
+            )}
           </NoteWin>
         </Modal>
       )}
+
       {toast && (
         <Toast
           color={toast.color}

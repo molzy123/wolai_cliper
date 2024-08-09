@@ -70,7 +70,6 @@ const saveSettings = (appId, appSecret, curDataBase, sendResponse) => {
  * @returns
  */
 const postNote = (row, dataBaseId, sendResponse) => {
-  console.log("postNote databaseid", dataBaseId);
   var data = {
     rows: [row],
   };
@@ -192,7 +191,6 @@ const open_setting_page = () => {
 chrome.storage.sync.get(
   ["appId", "appSecret", "curDataBase", "appToken", "dataBaseInfo"],
   (result) => {
-    console.trace("initSettings", result);
     if (
       result.appId === undefined ||
       result.appSecret === undefined ||

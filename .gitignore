@@ -30,3 +30,4 @@ package-lock.json
 
 # tailwindcss output css
 public/output.css
+extension.zip
