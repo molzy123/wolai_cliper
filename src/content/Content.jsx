@@ -94,8 +94,6 @@ const Content = () => {
     );
   };
 
-  console.log(showNoteModal && (!settings || !settings.dataBaseStructure));
-
   return (
     <div className="CRX-antd-diy">
       {showNoteModal && (
