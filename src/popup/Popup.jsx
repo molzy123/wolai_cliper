@@ -15,7 +15,9 @@ const Popup = () => {
   }, []);
 
   const onClickRefresh = () => {
-    chrome.runtime.sendMessage({ todo: "updateDataBase" });
+    chrome.runtime.sendMessage({ todo: "updateDataBase" }, (response) => {
+      console.log("updateDataBaseResponse", response);
+    });
   };
 
   const onClickSettings = () => {

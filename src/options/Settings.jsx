@@ -1,19 +1,36 @@
 /*global chrome*/
 import { useEffect, useRef, useState } from "react";
 import Input from "../common/components/Input";
+
+/**
+ * @typedef {Object} SettingInfo
+ * @property {string} appId
+ * @property {string} appSecret
+ * @property {string} appToken
+ * @property {string} curDataBase
+ * @property {object} dataBaseStructure
+ */
+
 const Settings = () => {
   const [appId, setAppId] = useState("");
   const [appSecret, setAppSecret] = useState("");
   const [dataBase, setDataBase] = useState("");
   const appToken = useRef(null);
+  /**
+   * @type {React.MutableRefObject<SettingInfo>}
+   */
   const settings = useRef({});
-
   const updateDataBaseInfo = function () {
-    chrome.runtime.sendMessage({
-      todo: "updateDataBase",
-      appToken: appToken.current,
-      curDataBase: dataBase,
-    });
+    chrome.runtime.sendMessage(
+      {
+        todo: "updateDataBase",
+        appToken: appToken.current,
+        curDataBase: dataBase,
+      },
+      (response) => {
+        console.log("updateDataBaseResponse", response);
+      }
+    );
   };
 
   const onConfirm = () => {

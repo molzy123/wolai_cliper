@@ -16,16 +16,20 @@ import DataUtil from "../common/util/DataUtil";
  */
 var settings = {};
 
-const commonReceiveMessage = (msg) => {
+const commonReceiveMessage = (msg, sendResponse) => {
   if (msg.todo === "updateDataBase") {
-    updateDataBase(msg.appToken, msg.curDataBase);
+    return updateDataBase(msg.appToken, msg.curDataBase, sendResponse);
   } else if (msg.todo === "openSettings") {
-    open_setting_page();
+    return open_setting_page();
   } else if (msg.todo === "postNote") {
-    console.log("receivePostNote", msg);
-    postNote(msg.data, msg.dataBaseId);
+    return postNote(msg.data, msg.dataBaseId, sendResponse);
   } else if (msg.todo === "saveSettings") {
-    saveSettings(msg.appId, msg.appSecret, msg.curDataBase);
+    return saveSettings(
+      msg.appId,
+      msg.appSecret,
+      msg.curDataBase,
+      sendResponse
+    );
   }
 };
 
@@ -33,8 +37,9 @@ const commonReceiveMessage = (msg) => {
  * @param {string} appId
  * @param {string} appSecret
  * @param {string} curDataBase 当前数据库id
+ * @param {(msg:string)=>Void} sendResponse
  */
-const saveSettings = (appId, appSecret, curDataBase) => {
+const saveSettings = (appId, appSecret, curDataBase, sendResponse) => {
   const requestData = {
     appId: appId,
     appSecret: appSecret,
@@ -53,12 +58,14 @@ const saveSettings = (appId, appSecret, curDataBase) => {
       settings.appId = appId;
       settings.appSecret = appSecret;
       settings.appToken = appToken;
-      updateDataBase(appToken, curDataBase);
+      sendResponse({ state: "success" });
+      updateDataBase(appToken, curDataBase, sendResponse);
     }
   );
+  return true;
 };
 
-const postNote = (row, dataBaseId) => {
+const postNote = (row, dataBaseId, sendResponse) => {
   console.log("postNote databaseid", dataBaseId);
   var data = {
     rows: [row],
@@ -69,14 +76,49 @@ const postNote = (row, dataBaseId) => {
     "POST",
     data,
     (result) => {
-      console.log(">>>>>>postNoteSuccess", result);
+      sendResponse({ state: "success" });
       updateDataBase(null, dataBaseId);
     },
     settings.appToken
   );
+  return true;
 };
 
-const updateDataBase = (appToken, dataBaseId) => {
+/**
+ *
+ * @param {string} dataBaseId
+ * @param {(msg:any)=>Void} sendResponse
+ * @param {any} result
+ * @returns {boolean}
+ */
+const onGetDataBaseSuccess = (dataBaseId, sendResponse, result) => {
+  if (result.error_code !== undefined) {
+    return;
+  }
+  var columnInfo = {};
+  try {
+    columnInfo = DataUtil.extractColumnInfo(result);
+  } catch (e) {
+    sendResponse && sendResponse({ state: "error", message: e.message });
+    return;
+  }
+  var dataBaseInfo = {};
+  dataBaseInfo[dataBaseId] = columnInfo;
+  chrome.storage.sync.set({ dataBaseInfo: dataBaseInfo });
+  chrome.storage.sync.set({ curDataBase: dataBaseId });
+  settings.curDataBase = dataBaseId;
+  settings.dataBaseStructure = DataUtil.sortColumn(columnInfo);
+  sendResponse && sendResponse({ state: "success" });
+};
+
+/**
+ *
+ * @param {string} appToken
+ * @param {string} dataBaseId
+ * @param {(msg:any)=>Void} sendResponse
+ * @returns
+ */
+const updateDataBase = (appToken, dataBaseId, sendResponse) => {
   if (appToken === undefined) {
     appToken = settings.appToken;
   }
@@ -87,29 +129,16 @@ const updateDataBase = (appToken, dataBaseId) => {
     `https://openapi.wolai.com/v1/databases/${dataBaseId}`,
     "GET",
     undefined,
-    function (result) {
-      if (result.error_code !== undefined) {
-        return;
-      }
-      var columnInfo = {};
-      try {
-        columnInfo = DataUtil.extractColumnInfo(result);
-      } catch (e) {
-        console.log(e);
-        return;
-      }
-      var dataBaseInfo = {};
-      dataBaseInfo[dataBaseId] = columnInfo;
-      chrome.storage.sync.set({ dataBaseInfo: dataBaseInfo });
-      chrome.storage.sync.set({ curDataBase: dataBaseId });
-      settings.curDataBase = dataBaseId;
-      settings.dataBaseStructure = DataUtil.sortColumn(columnInfo);
-    },
+    onGetDataBaseSuccess.bind(null, dataBaseId, sendResponse),
     appToken
   );
+  return true;
 };
 
-
+/**
+ * @param {string} id
+ * @param {string} title
+ */
 const newContextMenus = (id, title) => {
   chrome.contextMenus.create({
     id: id,
@@ -129,6 +158,9 @@ const open_note = (data) => {
   });
 };
 
+/**
+ * @param {any} msg
+ */
 const sendToContent = (msg) => {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     console.log("sendToContent", tabs);
@@ -210,5 +242,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  commonReceiveMessage(request);
+  return commonReceiveMessage(request, sendResponse);
 });
