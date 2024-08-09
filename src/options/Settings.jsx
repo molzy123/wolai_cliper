@@ -1,11 +1,14 @@
 /*global chrome*/
 import { useEffect, useRef, useState } from "react";
 import Input from "../common/components/Input";
+import { ResponseState } from "../common/Type";
+import Toast from "../common/components/Toast";
 
 const Settings = () => {
   const [appId, setAppId] = useState("");
   const [appSecret, setAppSecret] = useState("");
   const [dataBase, setDataBase] = useState("");
+  const [toast, setToast] = useState(undefined);
   const appToken = useRef(null);
   /**
    * @type {React.MutableRefObject<SettingInfo>}
@@ -19,7 +22,12 @@ const Settings = () => {
         curDataBase: dataBase,
       },
       (response) => {
-        console.log("updateDataBaseResponse", response);
+        if (response.state === ResponseState.SUCCESS) {
+          setToast({
+            color: "green",
+            message: "Refresh success",
+          });
+        }
       }
     );
   };
@@ -32,23 +40,43 @@ const Settings = () => {
       updateDataBaseInfo();
       return;
     } else {
-      chrome.runtime.sendMessage({
-        todo: "saveSettings",
-        appId: appId,
-        appSecret: appSecret,
-        curDataBase: dataBase,
-      });
+      chrome.runtime.sendMessage(
+        {
+          todo: "saveSettings",
+          appId: appId,
+          appSecret: appSecret,
+          curDataBase: dataBase,
+        },
+        function (response) {
+          if (response.state === ResponseState.SUCCESS) {
+            setToast({
+              color: "green",
+              message: "Save Success",
+            });
+          }
+        }
+      );
     }
   };
 
   useEffect(() => {
-    chrome.runtime.sendMessage({ todo: "getSettings" }, (response) => {
-      setAppId(response.appId || "");
-      setAppSecret(response.appSecret || "");
-      setDataBase(response.curDataBase || "");
-      appToken.current = response.appToken;
-      settings.current = response;
-    });
+    /**
+     *
+     * @param {import("../common/Type").ResponseData} response
+     */
+    function getSettingsSuccess(response) {
+      if (response.state === ResponseState.SUCCESS) {
+        setAppId(response.data.appId || "");
+        setAppSecret(response.data.appSecret || "");
+        setDataBase(response.data.curDataBase || "");
+        appToken.current = response.data.appToken;
+        settings.current = response.data;
+      } else {
+        console.error("getSettings failed", response.message);
+      }
+    }
+
+    chrome.runtime.sendMessage({ todo: "getSettings" }, getSettingsSuccess);
   }, []);
 
   return (
@@ -90,11 +118,13 @@ const Settings = () => {
         {appToken.current && <div>Token : {appToken.current}</div>}
       </div>
 
-      {/* <ToastManager
-        addListener={(cb) => {
-          backgroundPort.onMessage.addListener(cb);
-        }}
-      /> */}
+      {toast && (
+        <Toast
+          color={toast.color}
+          message={toast.message}
+          onClose={() => setToast(undefined)}
+        />
+      )}
     </div>
   );
 };

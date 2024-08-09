@@ -3,20 +3,35 @@ import "../common/EventService";
 import { useEffect, useState } from "react";
 import NoteWin from "./../common/components/NoteWin";
 import Note from "../common/components/Note";
+import { ResponseState } from "../common/Type";
+import Toast from "../common/components/Toast";
 
 const Popup = () => {
   const [settings, setSettings] = useState({});
+  const [toast, setToast] = useState(undefined);
 
   useEffect(() => {
-    chrome.runtime.sendMessage({ todo: "getSettings" }, (response) => {
-      console.log("getSettings", response);
-      setSettings(response);
-    });
+    /**
+     *
+     * @param {import("../common/Type").ResponseData} response
+     */
+    function getSettingsSuccess(response) {
+      if (response.state === ResponseState.SUCCESS) {
+        setSettings(response.data);
+      } else {
+        console.error("getSettings failed", response.message);
+      }
+    }
+    chrome.runtime.sendMessage({ todo: "getSettings" }, getSettingsSuccess);
   }, []);
 
   const onClickRefresh = () => {
     chrome.runtime.sendMessage({ todo: "updateDataBase" }, (response) => {
       console.log("updateDataBaseResponse", response);
+      setToast({
+        color: "green",
+        message: "refresh success",
+      });
     });
   };
 
@@ -42,10 +57,8 @@ const Popup = () => {
     );
   };
 
-  console.trace("settings", settings);
-
   return (
-    <div className="">
+    <div className="w-[500px] max-h-[400px]">
       {settings.dataBaseStructure && (
         <>
           <NoteWin
@@ -55,16 +68,11 @@ const Popup = () => {
           >
             <Note columns={settings.dataBaseStructure} onSubmit={submit}></Note>
           </NoteWin>
-          {/* <ToastManager
-            addListener={(cb) => {
-              backgroundPort.onMessage.addListener(cb);
-            }}
-          ></ToastManager> */}
         </>
       )}
 
       {!settings.dataBaseStructure && (
-        <div className="h-full w-full flex  flex-col items-center justify-center">
+        <div className="w-full h-full flex  flex-col items-center justify-center">
           <h1 className="text-gray-800 text-lg font-bold">
             Please set appId、appSecret、dataBase info before
           </h1>
@@ -76,6 +84,14 @@ const Popup = () => {
             前往设置
           </button>
         </div>
+      )}
+
+      {toast && (
+        <Toast
+          color={toast.color}
+          message={toast.message}
+          onClose={() => setToast(undefined)}
+        />
       )}
     </div>
   );

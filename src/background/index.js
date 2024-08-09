@@ -2,6 +2,7 @@
 import { wolai_fetch } from "../common/http/fetch";
 import DataUtil from "../common/util/DataUtil";
 import "../common/Type";
+import { ResponseState } from "../common/Type";
 
 /**
  * @type {import("../common/Type").SettingInfo}
@@ -9,19 +10,23 @@ import "../common/Type";
 var settings = {};
 
 const commonReceiveMessage = (msg, sendResponse) => {
-  if (msg.todo === "updateDataBase") {
-    return updateDataBase(msg.appToken, msg.curDataBase, sendResponse);
-  } else if (msg.todo === "openSettings") {
-    return open_setting_page();
-  } else if (msg.todo === "postNote") {
-    return postNote(msg.data, msg.dataBaseId, sendResponse);
-  } else if (msg.todo === "saveSettings") {
-    return saveSettings(
-      msg.appId,
-      msg.appSecret,
-      msg.curDataBase,
-      sendResponse
-    );
+  try {
+    if (msg.todo === "updateDataBase") {
+      return updateDataBase(msg.appToken, msg.curDataBase, sendResponse);
+    } else if (msg.todo === "openSettings") {
+      return open_setting_page();
+    } else if (msg.todo === "postNote") {
+      return postNote(msg.data, msg.dataBaseId, sendResponse);
+    } else if (msg.todo === "saveSettings") {
+      return saveSettings(
+        msg.appId,
+        msg.appSecret,
+        msg.curDataBase,
+        sendResponse
+      );
+    }
+  } catch (e) {
+    sendResponse({ state: ResponseState.ERROR, message: e.message });
   }
 };
 
@@ -29,7 +34,7 @@ const commonReceiveMessage = (msg, sendResponse) => {
  * @param {string} appId
  * @param {string} appSecret
  * @param {string} curDataBase 当前数据库id
- * @param {(msg:string)=>Void} sendResponse
+ * @param {import("../common/Type").sendResponse} sendResponse
  */
 const saveSettings = (appId, appSecret, curDataBase, sendResponse) => {
   const requestData = {
@@ -50,13 +55,20 @@ const saveSettings = (appId, appSecret, curDataBase, sendResponse) => {
       settings.appId = appId;
       settings.appSecret = appSecret;
       settings.appToken = appToken;
-      sendResponse({ state: "success" });
+      sendResponse({ state: "success", message: "Save Success" });
       updateDataBase(appToken, curDataBase, sendResponse);
     }
   );
   return true;
 };
 
+/**
+ *
+ * @param {import("../common/Type").RowData} row
+ * @param {string} dataBaseId
+ * @param {import("../common/Type").sendResponse} sendResponse
+ * @returns
+ */
 const postNote = (row, dataBaseId, sendResponse) => {
   console.log("postNote databaseid", dataBaseId);
   var data = {
@@ -68,7 +80,10 @@ const postNote = (row, dataBaseId, sendResponse) => {
     "POST",
     data,
     (result) => {
-      sendResponse({ state: "success" });
+      sendResponse({
+        state: ResponseState.SUCCESS,
+        message: "New Note Success",
+      });
       updateDataBase(null, dataBaseId);
     },
     settings.appToken
@@ -104,10 +119,10 @@ const onGetDataBaseSuccess = (dataBaseId, sendResponse, result) => {
 };
 
 /**
- *
+ * get database info and save to storage
  * @param {string} appToken
  * @param {string} dataBaseId
- * @param {(msg:any)=>Void} sendResponse
+ * @param {import("../common/Type").sendResponse} sendResponse
  * @returns
  */
 const updateDataBase = (appToken, dataBaseId, sendResponse) => {
@@ -128,6 +143,7 @@ const updateDataBase = (appToken, dataBaseId, sendResponse) => {
 };
 
 /**
+ * create context menus
  * @param {string} id
  * @param {string} title
  */
@@ -143,25 +159,28 @@ const newContextMenus = (id, title) => {
 
 newContextMenus("add_note", "Add Note & Edit");
 
+/**
+ *
+ * @param {string} data selected text
+ * @returns {void}
+ */
 const open_note = (data) => {
   sendToContent({
     todo: "add_note",
-    data: data,
+    selectedText: data,
   });
 };
 
 /**
- * @param {any} msg
+ * @param {import("../common/Type").OpenNoteWindowReqeustData} msg
+ * @returns {void}
  */
 const sendToContent = (msg) => {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    console.log("sendToContent", tabs);
     var activeTab = tabs[0];
     var activeTabUrl = activeTab.url;
-
     // 查看是否是普通的网页
     if (!activeTabUrl.startsWith("http")) return;
-    // 向content script发送消息
     chrome.tabs.sendMessage(activeTab.id, msg);
   });
 };
@@ -228,8 +247,13 @@ chrome.commands.onCommand.addListener(function (command) {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.todo === "getSettings") {
-    console.log("onGetSettings", settings);
-    sendResponse(settings);
+    /**
+     * @type {import("../common/Type").ResponseData}
+     */
+    const request = {};
+    request.state = ResponseState.SUCCESS;
+    request.data = settings;
+    sendResponse(request);
   }
 });
 

@@ -24,7 +24,7 @@
  * @typedef {Object} ResponseData
  * @property {ResponseState} state
  * @property {string} message
- * @property {Object} data
+ * @property {Object} [data]
  */
 
 /**
@@ -50,6 +50,12 @@
  */
 
 /**
+ * @typedef {Object} OpenNoteWindowReqeustData
+ * @property {string} todo
+ * @property {string} selectedText
+ */
+
+/**
  * @enum {string}
  */
 export const ResponseState = {
@@ -69,3 +75,10 @@ export const ColumnType = {
   CHECKBOX: "checkbox",
   PRIMARY: "primary",
 };
+
+/**
+ * send message to caller after handle the request
+ * @callback sendResponse
+ * @param {ResponseData} response
+ * @returns {void}
+ */

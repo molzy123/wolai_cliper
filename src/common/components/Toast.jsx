@@ -21,12 +21,14 @@ const Toast = ({ message, color, duration = 1000, onClose }) => {
   }, [isActive, onClose]);
 
   return (
-    <div
-      className={`toast ${
-        isActive ? "toast-slide-in" : "toast-slide-out"
-      } fixed top-1/4 right-1/2 text-md z-[99] p-3 toast-${color} rounded-lg shadow-lg`}
-    >
-      {message}
+    <div className="fixed inset-0 flex items-center justify-center">
+      <div
+        className={`toast ${
+          isActive ? "toast-slide-in" : "toast-slide-out"
+        } text-md z-[99] p-3 toast-${color} rounded-lg shadow-lg`}
+      >
+        {message}
+      </div>
     </div>
   );
 };

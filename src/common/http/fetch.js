@@ -1,5 +1,3 @@
-/*global chrome*/
-
 export function wolai_fetch(
   url,
   method,
