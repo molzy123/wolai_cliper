@@ -78,6 +78,7 @@ const Note = ({ selectInfo = "", columns, onSubmit }) => {
               ></Input>
             );
           }
+          return null;
         })}
         <div className=" flex items-center justify-center">
           <div className="m-3">

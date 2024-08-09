@@ -1,4 +1,3 @@
-/*global chrome*/
 import { createRoot } from "react-dom/client";
 import { ConfigProvider } from "antd";
 import zhCN from "antd/es/locale/zh_CN";

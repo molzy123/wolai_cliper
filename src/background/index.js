@@ -109,18 +109,18 @@ const updateDataBase = (appToken, dataBaseId) => {
   );
 };
 
-// 创建上下文菜单
-const contextMenus = [{ id: "add_note", title: "Add Note & Edit" }];
 
-for (let menu of contextMenus) {
+const newContextMenus = (id, title) => {
   chrome.contextMenus.create({
-    id: menu.id,
+    id: id,
     type: "normal",
-    title: menu.title,
+    title: title,
     contexts: ["selection"], // 右键点击选中文字时显示
     documentUrlPatterns: ["<all_urls>"], // 限制菜单选项仅应用于URL匹配给定模式之一的页面
   });
-}
+};
+
+newContextMenus("add_note", "Add Note & Edit");
 
 const open_note = (data) => {
   sendToContent({
@@ -134,13 +134,9 @@ const sendToContent = (msg) => {
     console.log("sendToContent", tabs);
     var activeTab = tabs[0];
     var activeTabUrl = activeTab.url;
-    // 检查URL是否以'chrome-extension://'开始，并且包含了本扩展的ID
-    if (
-      activeTabUrl.startsWith("chrome-extension://") &&
-      activeTabUrl.includes(chrome.runtime.id)
-    )
-      return;
 
+    // 查看是否是普通的网页
+    if (!activeTabUrl.startsWith("http")) return;
     // 向content script发送消息
     chrome.tabs.sendMessage(activeTab.id, msg);
   });
