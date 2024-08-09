@@ -1,18 +1,10 @@
 /*global chrome*/
 import { wolai_fetch } from "../common/http/fetch";
 import DataUtil from "../common/util/DataUtil";
+import "../common/Type";
 
 /**
- * @typedef {Object} SettingInfo
- * @property {string} appId
- * @property {string} appSecret
- * @property {string} appToken
- * @property {string} curDataBase
- * @property {object} dataBaseStructure
- */
-
-/**
- * @type {SettingInfo}
+ * @type {import("../common/Type").SettingInfo}
  */
 var settings = {};
 

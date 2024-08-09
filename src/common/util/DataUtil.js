@@ -1,20 +1,5 @@
-export const ColumnType = {
-  TEXT: "text",
-  NUMBER: "number",
-  SELECT: "select",
-  MULTI_SELECT: "multi_select",
-  DATE: "date",
-  CHECKBOX: "checkbox",
-  PRIMARY: "primary",
-};
+import { ColumnType } from "../Type";
 
-/**
- * columnInfo: {
- *  columnName: string;
- *  type: ColumnType;
- *  options?: string[];
- * }
- */
 const module = {
   extractColumnInfo(data) {
     const columnNames = data.data.column_order;
@@ -73,7 +58,7 @@ const module = {
    */
   sortColumn(columns) {
     console.log("sortColumn", columns);
-    
+
     var sortArr = [];
     for (let i = 0; i < columns.length; i++) {
       if (columns[i].type === ColumnType.PRIMARY) {

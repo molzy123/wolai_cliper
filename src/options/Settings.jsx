@@ -2,15 +2,6 @@
 import { useEffect, useRef, useState } from "react";
 import Input from "../common/components/Input";
 
-/**
- * @typedef {Object} SettingInfo
- * @property {string} appId
- * @property {string} appSecret
- * @property {string} appToken
- * @property {string} curDataBase
- * @property {object} dataBaseStructure
- */
-
 const Settings = () => {
   const [appId, setAppId] = useState("");
   const [appSecret, setAppSecret] = useState("");

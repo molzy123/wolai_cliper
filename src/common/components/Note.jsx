@@ -4,8 +4,7 @@ import MultiSelect from "./MultiSelect";
 import Input from "./Input";
 import Textarea from "./Textarea";
 import CheckBox from "./CheckBox";
-
-import { ColumnType } from "@/common/util/DataUtil";
+import { ColumnType } from "../Type";
 
 const Note = ({ selectInfo = "", columns, onSubmit }) => {
   const [formData, setFormData] = useState({});
